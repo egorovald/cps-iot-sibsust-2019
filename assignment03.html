@@ -12,9 +12,14 @@
     ctx = canvasElement.getContext('2d'); // var for canvas el.
     function log(msg) {
         // filling canvas
-        //if (msg==1) 
+        if (msg==1) {
+            ctx.fillStyle = "green";
             ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); 
-            
+        }
+        if (msg==0) { 
+            ctx.fillStyle = "red";
+            ctx.fillRect(0, 0, canvasElement.width, canvasElement.height);    
+        }    
     }
     var ws = new WebSocket('ws://172.16.22.169:8888/');
     ws.onmessage = function (event) {
