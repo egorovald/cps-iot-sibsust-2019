@@ -23,6 +23,14 @@ var messageJSON;
 console.log("Starting the code");
 var board = new firmata.Board("/dev/ttyACM0", function(){
     console.log("Connecting to Arduino");
+    console.log("Activation of Pin 8");
+    board.pinMode(8, board.MODES.OUTPUT); // Configures the specified pin to behave either as an input or an output.
+    console.log("Activation of Pin 9");
+    board.pinMode(9, board.MODES.OUTPUT); // Configures the specified pin to behave either as an input or an output.
+    console.log("Activation of Pin 10");
+    board.pinMode(10, board.MODES.OUTPUT); // Configures the specified pin to behave either as an input or an output.
+
+
     console.log("Enabling analog Pin 0");
     board.pinMode(0, board.MODES.ANALOG); // analog pin 0
     console.log("Enabling analog Pin 1");
@@ -30,7 +38,7 @@ var board = new firmata.Board("/dev/ttyACM0", function(){
 });
 
 function handler(req, res) {
-    fs.readFile(__dirname + "/example11.html",
+    fs.readFile(__dirname + "/assignment04.html",
     function (err, data) {
         if (err) {
             res.writeHead(500, {"Content-Type": "text/plain"});
@@ -43,6 +51,7 @@ function handler(req, res) {
 
 var desiredValue = 0; // desired value var
 var actualValue = 0; // variable for actual value (output value)
+var difference = 0;  // difference between desired and actual value
 http.listen(8080); // server will listen on port 8080
 board.on("ready", function() {
     board.analogRead(0, function(value){
@@ -51,6 +60,8 @@ board.on("ready", function() {
     board.analogRead(1, function(value) {
     actualValue = value; // continuous read of pin A1
     });
+    
+
     wss.on('connection', function (ws, req) { // start of wss code
         messageJSON = {"type": "message", "content": "Srv connected, board OK"};
         ws.send(JSON.stringify(messageJSON));
@@ -60,5 +71,31 @@ board.on("ready", function() {
 }); // end of board.on(ready)
 
 function sendValues () {
-    wss.broadcast(JSON.stringify({"type": "clientReadValues", "desiredValue": desiredValue, "actualValue": actualValue}));
+    
+    difference = desiredValue - actualValue;
+    console.log(difference);
+    //Blue LED
+    if (difference > 0) {
+        console.log('>');
+        board.digitalWrite(10, board.HIGH);
+        board.digitalWrite(8, board.LOW);
+        board.digitalWrite(9, board.LOW);
+    };
+    
+    //Green LED
+    if (difference == 0) {
+        console.log('=');
+        board.digitalWrite(9, board.HIGH);
+        board.digitalWrite(8, board.LOW);
+        board.digitalWrite(10, board.LOW);
+    };
+    //Red LED
+    if (difference < 0) {
+        console.log('<');
+        board.digitalWrite(8, board.HIGH);
+        board.digitalWrite(9, board.LOW);
+        board.digitalWrite(10, board.LOW);
+    };
+
+    wss.broadcast(JSON.stringify({"type": "clientReadValues", "desiredValue": desiredValue, "actualValue": actualValue, "difference": difference}));
 };

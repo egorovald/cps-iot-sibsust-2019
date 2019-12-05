@@ -8,6 +8,10 @@
     <div>
         <canvas id="canvas1" width ="200" height = "100" style="border: 1px dashed #00c3c3;"></canvas>    
     </div>       
+    <div>
+        <canvas id="canvas2" width ="200" height = "100" style="border: 1px"></canvas>    
+    </div>       
+    
     <div id="print1"></div>    
     <br>
     <script type="text/javascript">
@@ -21,8 +25,11 @@
         var potValue2 = 0; // value of second potentiometer
         var x2 = new Array(); // array for x2 variable
         var y2 = new Array(); // array for y2 variable
+        var difference = 0; //difference between actual value and desire value;
         var canvas1;
-        var ctx1;     
+        var canvas2;
+        var ctx1;  
+        var ctx2; 
         function log(msg) {
             var node=document.createElement("tr"); // we create the variable node as the a table row (tr)
             var textnode=document.createTextNode(linesPrintCounter + " | " + msg); // we create element with the text adding the counter
@@ -51,7 +58,10 @@
             for (var i=0; i<200; i++) {
                 x2[i] = i; // x2 values are 0, 1, 2, ...
                 y2[i] = 0; // for y2 values are 0
-                };
+            };
+            //indicator    
+            canvas2 = document.getElementById("canvas2");
+            ctx2 = canvas2.getContext("2d");
         };
 
         ws.onmessage = function(event) {
@@ -64,6 +74,7 @@
         case "clientReadValues":
             potValue1 = msg.desiredValue;
             potValue2 = msg.actualValue;
+            difference = msg.difference;
             // Draw first graph *****************************************
             ctx1.clearRect(0, 0, canvas1.width, canvas1.height); // clear the canvas
             ctx1.lineWidth = "1";
@@ -88,6 +99,20 @@
             ctx1.stroke(); // to draw the line
             // Draw second graph graph END ************************************    
             log(potValue1 + "|" + potValue2);
+            // Draw indicator  *****************************************
+            // filling canvas
+            if (difference>0) {
+                ctx2.fillStyle = "blue";
+                ctx2.fillRect(0, 0, canvas2.width, canvas2.height); 
+            }
+            if (difference==0) { 
+                ctx2.fillStyle = "green";
+                ctx2.fillRect(0, 0, canvas2.width, canvas2.height);    
+            }
+            if (difference<0) { 
+                ctx2.fillStyle = "red";
+                ctx2.fillRect(0, 0, canvas2.width, canvas2.height);    
+            }    
         break;        
         }
     };
