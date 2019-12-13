@@ -15,9 +15,9 @@ http.createServer(function(req, res){ // http.createServer([requestListener]) | 
     }
     else if (operator == 1) {
         board.digitalWrite(13, board.HIGH);
-        board.dalay(100);
+
         board.digitalWrite(13, board.LOW);
-        board.dalay(100);
+
         board.digitalWrite(13, board.HIGH);
         
     }
